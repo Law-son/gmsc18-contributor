@@ -1,2 +1,2 @@
 # gmsc18-contributor
-A basic web app to aid my JHS class group make monthly contributions.
+A basic web app to aid my JHS class group make monthly financial contributions.
