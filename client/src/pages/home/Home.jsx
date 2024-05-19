@@ -87,6 +87,7 @@ const Home = () => {
           <input
             type="text"
             value={phoneNumber}
+            placeholder='...should be your MoMo number'
             onChange={(e) => setPhoneNumber(e.target.value)}
             className="mt-1 p-2 border border-gray-300 rounded w-full"
           />
