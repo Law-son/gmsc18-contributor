@@ -10,7 +10,7 @@ app.use(helmet());
 
 // CORS options
 const corsOptions = {
-  origin: 'https://maifriend-v3.vercel.app',
+  origin: 'https://gmsc18-contributor.vercel.app',
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
 };
