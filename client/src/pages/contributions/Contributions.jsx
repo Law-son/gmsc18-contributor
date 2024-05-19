@@ -1,52 +1,40 @@
 import React, { useState, useEffect } from "react";
+import axios from 'axios';
 import DateUtils from "../../util/DateUtils"; // Import the DateUtils utility class
 
 const Contributions = () => {
   const currentMonth = DateUtils.getCurrentMonth();
+  const currentYear = DateUtils.getCurrentYear();
   const [contributors, setContributors] = useState([]);
   const [totalAmountCurrentMonth, setTotalAmountCurrentMonth] = useState(0);
   const [totalAmountOverall, setTotalAmountOverall] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [filteredContributors, setFilteredContributors] = useState([]);
 
-  // Dummy contributor data for testing
-  const dummyContributors = [
-    {
-      fullName: "John Doe",
-      amount: 50,
-      currentDate: "18th May, 2024",
-      currentMonth: "May",
-      currentYear: 2024,
-    },
-    {
-      fullName: "Jane Smith",
-      amount: 30,
-      currentDate: "18th May, 2024",
-      currentMonth: "May",
-      currentYear: 2024,
-    },
-    {
-      fullName: "Alice Johnson",
-      amount: 20,
-      currentDate: "18th May, 2024",
-      currentMonth: "May",
-      currentYear: 2024,
-    },
-  ];
-
   useEffect(() => {
-    // Set initial state and perform initial filtering
-    setContributors(dummyContributors);
-    setTotalAmountCurrentMonth(calculateTotalAmount(dummyContributors, currentMonth));
-    setTotalAmountOverall(calculateTotalAmount(dummyContributors));
-    filterContributorsByMonth(currentMonth, dummyContributors);
-  }, []);
+    // Fetch contributions from the server
+    const fetchContributions = async () => {
+      try {
+        const response = await axios.get('https://gmsc18-contributor.onrender.com/fetchPayments/');
+        const data = response.data.success;
 
-  // Calculate total amount for the given month or overall
-  const calculateTotalAmount = (contributors, month = null) => {
+        setContributors(data);
+        setTotalAmountCurrentMonth(calculateTotalAmount(data, currentMonth, currentYear));
+        setTotalAmountOverall(calculateTotalAmount(data));
+        filterContributorsByMonth(currentMonth, currentYear, data);
+      } catch (error) {
+        console.error('Error fetching contributions:', error);
+      }
+    };
+
+    fetchContributions();
+  }, [currentMonth, currentYear]);
+
+  // Calculate total amount for the given month and year or overall
+  const calculateTotalAmount = (contributors, month = null, year = null) => {
     return contributors
       .filter((contributor) =>
-        month ? contributor.currentMonth === month : true
+        month && year ? (contributor.currentMonth === month && contributor.currentYear === year) : true
       )
       .reduce((total, contributor) => total + contributor.amount, 0);
   };
@@ -55,13 +43,13 @@ const Contributions = () => {
   const handleMonthChange = (event) => {
     const month = event.target.value;
     setSelectedMonth(month);
-    filterContributorsByMonth(month);
+    filterContributorsByMonth(month, currentYear);
   };
 
-  // Filter contributors by selected month
-  const filterContributorsByMonth = (month, data = contributors) => {
+  // Filter contributors by selected month and year
+  const filterContributorsByMonth = (month, year, data = contributors) => {
     const filtered = data.filter(
-      (contributor) => contributor.currentMonth === month
+      (contributor) => contributor.currentMonth === month && contributor.currentYear === year
     );
     setFilteredContributors(filtered);
   };
@@ -132,7 +120,7 @@ const Contributions = () => {
               </thead>
               <tbody>
                 {filteredContributors.map((contributor, index) => (
-                  <tr key={index}>
+                  <tr key={contributor._id}>
                     <td className="border px-4 py-2">{index + 1}</td>
                     <td className="border px-4 py-2">{contributor.fullName}</td>
                     <td className="border px-4 py-2">GHS{contributor.amount}</td>

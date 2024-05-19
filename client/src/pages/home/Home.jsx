@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import DateUtils from '../../util/DateUtils';
+import axios from 'axios';
 
 const Home = () => {
   const [fullName, setFullName] = useState('');
@@ -37,17 +38,38 @@ const Home = () => {
     return errors;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const formErrors = validateForm();
     if (Object.keys(formErrors).length === 0) {
-      // Convert amount to a number
       const amountValue = parseFloat(amount);
       const currentMonth = DateUtils.getCurrentMonth();
       const currentYear = DateUtils.getCurrentYear();
       const currentDate = DateUtils.getCurrentDate();
-      // Handle form submission (e.g., send data to backend)
-      console.log('Form submitted:', { fullName, phoneNumber, email, amount: amountValue, currentMonth, currentYear, currentDate  });
+
+      const payload = {
+        fullName,
+        email,
+        phoneNumber,
+        amount: amountValue,
+        currentDate,
+        currentMonth,
+        currentYear,
+      };
+
+      try {
+        const response = await axios.post('https://gmsc18-contributor.onrender.com/makePayment', payload);
+        const { status, success } = response.data;
+        if (status && success?.status) {
+          window.location.href = success.data.authorization_url;
+        } else {
+          // Handle any errors returned by the server
+          console.error('Payment initiation failed:', success.message);
+        }
+      } catch (error) {
+        // Handle request errors
+        console.error('Error making payment request:', error);
+      }
 
       // Clear form fields after submission
       setFullName('');
