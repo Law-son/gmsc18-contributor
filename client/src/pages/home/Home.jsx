@@ -9,6 +9,7 @@ const Home = () => {
   const [email, setEmail] = useState('');
   const [amount, setAmount] = useState('');
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);  // New loading state
 
   const validateForm = () => {
     const errors = {};
@@ -42,6 +43,7 @@ const Home = () => {
     e.preventDefault();
     const formErrors = validateForm();
     if (Object.keys(formErrors).length === 0) {
+      setLoading(true);  // Set loading to true when form is submitted
       const amountValue = parseFloat(amount);
       const currentMonth = DateUtils.getCurrentMonth();
       const currentYear = DateUtils.getCurrentYear();
@@ -69,6 +71,8 @@ const Home = () => {
       } catch (error) {
         // Handle request errors
         console.error('Error making payment request:', error);
+      } finally {
+        setLoading(false);  // Set loading to false after the request completes
       }
 
       // Clear form fields after submission
@@ -135,8 +139,8 @@ const Home = () => {
           />
           {errors.amount && <p className="text-red-500 text-sm">{errors.amount}</p>}
         </div>
-        <button type="submit" className="bg-blue-500 text-white py-2 px-4 w-full rounded">
-          Make Payment
+        <button type="submit" className="bg-blue-500 text-white py-2 px-4 w-full rounded" disabled={loading}>
+          {loading ? 'processing...' : 'Make Payment'}
         </button>
       </form>
       <Link to="/contributors" className="text-blue-500 font-bold mt-4">View contributors for this month</Link>

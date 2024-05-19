@@ -19,8 +19,10 @@ const Contributions = () => {
         const data = response.data.success;
 
         setContributors(data);
-        setTotalAmountCurrentMonth(calculateTotalAmount(data, currentMonth, currentYear));
-        setTotalAmountOverall(calculateTotalAmount(data));
+        const totalCurrentMonth = calculateTotalAmount(data, currentMonth, currentYear);
+        const totalOverall = calculateTotalAmount(data);
+        setTotalAmountCurrentMonth(totalCurrentMonth);
+        setTotalAmountOverall(totalOverall);
         filterContributorsByMonth(currentMonth, currentYear, data);
       } catch (error) {
         console.error('Error fetching contributions:', error);
