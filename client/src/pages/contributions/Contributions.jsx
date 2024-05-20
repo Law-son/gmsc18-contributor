@@ -6,11 +6,11 @@ const Contributions = () => {
   const currentMonth = DateUtils.getCurrentMonth();
   const currentYear = DateUtils.getCurrentYear();
   const [contributors, setContributors] = useState([]);
-  const [totalAmountCurrentMonth, setTotalAmountCurrentMonth] = useState(0);
-  const [totalAmountOverall, setTotalAmountOverall] = useState(0);
-  const [totalAmountYear, setTotalAmountYear] = useState(0); // New state for total amount in a year
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [filteredContributors, setFilteredContributors] = useState([]);
+  const [totalAmountCurrentMonth, setTotalAmountCurrentMonth] = useState(0);
+  const [totalAmountYear, setTotalAmountYear] = useState(0);
+  const [totalAmountOverall, setTotalAmountOverall] = useState(0);
 
   useEffect(() => {
     // Fetch contributions from the server
@@ -20,12 +20,7 @@ const Contributions = () => {
         const data = response.data.success;
 
         setContributors(data);
-        const totalCurrentMonth = calculateTotalAmountForMonth(data, currentMonth, currentYear);
-        const totalOverall = calculateTotalOverall(data);
-        const totalYear = calculateTotalAmountForYear(data, currentYear);
-        setTotalAmountCurrentMonth(totalCurrentMonth);
-        setTotalAmountOverall(totalOverall);
-        setTotalAmountYear(totalYear); // Set the total amount for the year
+        calculateTotalAmountOverall(data);
         filterContributorsByMonth(currentMonth, currentYear, data);
       } catch (error) {
         console.error('Error fetching contributions:', error);
@@ -35,23 +30,22 @@ const Contributions = () => {
     fetchContributions();
   }, [currentMonth, currentYear]);
 
-  // Calculate total amount for the given month and year
-  const calculateTotalAmountForMonth = (contributors, month, year) => {
-    return contributors
-      .filter((contributor) => contributor.currentMonth === month && contributor.currentYear === year)
-      .reduce((total, contributor) => total + contributor.amount, 0);
-  };
+  useEffect(() => {
+    // Calculate total amount for the current month
+    const totalForMonth = filteredContributors.reduce((total, contributor) => total + contributor.amount, 0);
+    setTotalAmountCurrentMonth(totalForMonth);
+  }, [filteredContributors]);
 
-  // Calculate total amount for the year
-  const calculateTotalAmountForYear = (contributors, year) => {
-    return contributors
-      .filter((contributor) => contributor.currentYear === year)
-      .reduce((total, contributor) => total + contributor.amount, 0);
-  };
+  useEffect(() => {
+    // Calculate total amount for the current year
+    const filteredContributorsForYear = contributors.filter(contributor => contributor.currentYear === currentYear);
+    const totalForYear = filteredContributorsForYear.reduce((total, contributor) => total + contributor.amount, 0);
+    setTotalAmountYear(totalForYear);
+  }, [contributors, currentYear]);
 
-  // Calculate overall total amount
-  const calculateTotalOverall = (contributors) => {
-    return contributors.reduce((total, contributor) => total + contributor.amount, 0);
+  const calculateTotalAmountOverall = (data) => {
+    const total = data.reduce((total, contributor) => total + contributor.amount, 0);
+    setTotalAmountOverall(total);
   };
 
   // Handle month change
@@ -83,10 +77,10 @@ const Contributions = () => {
               Total amount gathered this month: GHS{totalAmountCurrentMonth}
             </p>
             <p className="text-lg font-semibold">
-              Overall total amount gathered: GHS{totalAmountOverall}
+              Total amount gathered this year: GHS{totalAmountYear}
             </p>
             <p className="text-lg font-semibold">
-              Total amount gathered this year: GHS{totalAmountYear}
+              Overall total amount gathered: GHS{totalAmountOverall}
             </p>
           </div>
           <div className="md:text-right">
