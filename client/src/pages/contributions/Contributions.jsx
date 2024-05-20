@@ -53,7 +53,7 @@ const Contributions = () => {
       (total, item) => total + item.amount,
       0
     );
-
+    console.log("month: ", totalAmount);
     return totalAmount;
   }
 
@@ -67,7 +67,7 @@ const Contributions = () => {
       (total, item) => total + item.amount,
       0
     );
-
+    console.log("year: ", totalAmount);
     return totalAmount;
   }
 
