@@ -83,7 +83,7 @@ const Contributions = () => {
   const handleMonthChange = (event) => {
     const month = event.target.value;
     setSelectedMonth(month);
-    filterContributorsByMonth(month, currentYear);
+    filterContributorsByMonth(contributors, month, currentYear);
   };
 
   // Filter contributors by selected month and year
