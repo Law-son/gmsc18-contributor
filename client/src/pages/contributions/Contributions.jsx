@@ -32,12 +32,19 @@ const Contributions = () => {
   };
 
   const filterContributorsByMonth = (month, year, data = contributors) => {
-    const filtered = data.filter(
-      (contributor) => contributor.currentMonth.toLowerCase() === month.toLowerCase() && contributor.currentYear === year
-    );
+    const filtered = data.reduce((acc, contributor) => {
+      if (
+        contributor.currentMonth.toLowerCase() === month.toLowerCase() &&
+        contributor.currentYear === year
+      ) {
+        return [...acc, contributor];
+      }
+      return acc;
+    }, []);
     console.log('Filtered contributors for selected month:', filtered); // Debugging line
     setFilteredContributors(filtered);
-  };  
+  };
+   
 
   return (
     <div className="min-h-screen bg-gray-100">
