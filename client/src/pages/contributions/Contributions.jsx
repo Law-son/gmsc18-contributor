@@ -149,7 +149,6 @@ const Contributions = () => {
           </div>
         </div>
         {/* Contributors table */}
-        // Contributors table
         <div className="bg-white p-6 rounded shadow-md">
           <h2 className="text-2xl font-bold mb-4">
             Contributors for the month of {selectedMonth || "All"}
