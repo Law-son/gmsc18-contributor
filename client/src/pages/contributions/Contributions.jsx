@@ -24,11 +24,11 @@ const Contributions = () => {
         setContributors(data);
         const totalCurrentMonth = calculateTotalAmountForMonth(
           data,
-          currentMonth,
-          currentYear
+          "May",
+          "2024"
         );
         const totalOverall = calculateTotalOverall(data);
-        const totalYear = calculateTotalAmountForYear(data, currentYear);
+        const totalYear = calculateTotalAmountForYear(data, "2024");
         setTotalAmountCurrentMonth(totalCurrentMonth);
         setTotalAmountOverall(totalOverall);
         setTotalAmountYear(totalYear); // Set the total amount for the year
