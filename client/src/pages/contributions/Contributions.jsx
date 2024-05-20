@@ -21,28 +21,25 @@ const Contributions = () => {
         );
         const data = response.data.success;
 
-        console.log("current month: ", currentMonth);
-        console.log("current year: ", currentYear);
-
         setContributors(data);
         const totalCurrentMonth = calculateTotalAmountForMonth(
           data,
-          "May",
-          "2024"
+          currentMonth,
+          currentYear.toString()
         );
         const totalOverall = calculateTotalOverall(data);
         const totalYear = calculateTotalAmountForYear(data, "2024");
         setTotalAmountCurrentMonth(totalCurrentMonth);
         setTotalAmountOverall(totalOverall);
         setTotalAmountYear(totalYear); // Set the total amount for the year
-        filterContributorsByMonth(data, currentMonth, currentYear);
+        filterContributorsByMonth(data, currentMonth, currentYear.toString());
       } catch (error) {
         console.error("Error fetching contributions:", error);
       }
     };
 
     fetchContributions();
-  }, [currentMonth, currentYear]);
+  }, [currentMonth, currentYear.toString()]);
 
   // Calculate total amount for the given month and year
   function calculateTotalAmountForMonth(data, month, year) {
@@ -88,7 +85,7 @@ const Contributions = () => {
   const handleMonthChange = (event) => {
     const month = event.target.value;
     setSelectedMonth(month);
-    filterContributorsByMonth(contributors, month, currentYear);
+    filterContributorsByMonth(contributors, month, currentYear.toString());
   };
 
   // Filter contributors by selected month and year
