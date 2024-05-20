@@ -12,11 +12,17 @@ const Contributions = () => {
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [filteredContributors, setFilteredContributors] = useState([]);
 
+  //todo:
+  console.log("current month:", currentMonth);
+  console.log("current year:", currentYear);
+
   useEffect(() => {
     const fetchContributions = async () => {
       try {
         const response = await axios.get('https://gmsc18-contributor.onrender.com/fetchPayments/');
         const data = response.data.success;
+        
+        console.log('Fetched data:', data); // Debugging line
 
         setContributors(data);
 
@@ -26,6 +32,11 @@ const Contributions = () => {
         setTotalAmountCurrentMonth(totalCurrentMonth);
         setTotalAmountCurrentYear(totalCurrentYear);
         setTotalAmountOverall(totalOverall);
+
+        //todo:
+        console.log("total amount, month: ", totalCurrentMonth);
+        console.log("total amount, year: ", totalCurrentYear);
+        console.log("total amount, overall: ", totalOverall);
 
         filterContributorsByMonth(currentMonth, currentYear, data);
       } catch (error) {
@@ -62,6 +73,8 @@ const Contributions = () => {
     );
     setFilteredContributors(filtered);
   };
+
+  console.log(filteredContributors);
 
   return (
     <div className="min-h-screen bg-gray-100">
