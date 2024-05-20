@@ -38,8 +38,9 @@ const Contributions = () => {
 
   useEffect(() => {
     // Calculate total amount for the current year
-    const filteredContributorsForYear = contributors.filter(contributor => contributor.currentYear === currentYear);
-    const totalForYear = filteredContributorsForYear.reduce((total, contributor) => total + contributor.amount, 0);
+    const totalForYear = contributors
+      .filter(contributor => contributor.currentYear === currentYear)
+      .reduce((total, contributor) => total + contributor.amount, 0);
     setTotalAmountYear(totalForYear);
   }, [contributors, currentYear]);
 
