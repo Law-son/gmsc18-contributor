@@ -91,10 +91,12 @@ const Contributions = () => {
   // Filter contributors by selected month and year
   const filterContributorsByMonth = (data, month, year) => {
     // Filter the data based on month and year
-    const filteredData = data.filter(item => item.currentMonth === month && item.currentYear === year);
+    const filteredData = data.filter(
+      (item) => item.currentMonth === month && item.currentYear === year
+    );
 
     setFilteredContributors(filteredData);
-}
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -102,7 +104,6 @@ const Contributions = () => {
         <h1 className="text-4xl font-bold text-black mb-4 text-center md:text-left">
           Contributions
         </h1>
-
         {/* Total amount gathered */}
         <div className="mb-4 md:flex md:items-center md:justify-between">
           <div className="mb-4 md:mb-0">
@@ -147,37 +148,45 @@ const Contributions = () => {
             </select>
           </div>
         </div>
-
         {/* Contributors table */}
+        // Contributors table
         <div className="bg-white p-6 rounded shadow-md">
           <h2 className="text-2xl font-bold mb-4">
             Contributors for the month of {selectedMonth || "All"}
           </h2>
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 rounded shadow-md">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="text-left px-4 py-2">#</th>
-                  <th className="text-left px-4 py-2">Full Name</th>
-                  <th className="text-left px-4 py-2">Amount</th>
-                  <th className="text-left px-4 py-2">Date Paid</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredContributors.map((contributor, index) => (
-                  <tr key={contributor._id}>
-                    <td className="border px-4 py-2">{index + 1}</td>
-                    <td className="border px-4 py-2">{contributor.fullName}</td>
-                    <td className="border px-4 py-2">
-                      GHS{contributor.amount}
-                    </td>
-                    <td className="border px-4 py-2">
-                      {contributor.currentDate}
-                    </td>
+            {filteredContributors.length === 0 ? (
+              <p className="text-lg font-semibold">
+                No payment made for this month
+              </p>
+            ) : (
+              <table className="min-w-full bg-white border border-gray-200 rounded shadow-md">
+                <thead>
+                  <tr className="bg-gray-100">
+                    <th className="text-left px-4 py-2">#</th>
+                    <th className="text-left px-4 py-2">Full Name</th>
+                    <th className="text-left px-4 py-2">Amount</th>
+                    <th className="text-left px-4 py-2">Date Paid</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {filteredContributors.map((contributor, index) => (
+                    <tr key={contributor._id}>
+                      <td className="border px-4 py-2">{index + 1}</td>
+                      <td className="border px-4 py-2">
+                        {contributor.fullName}
+                      </td>
+                      <td className="border px-4 py-2">
+                        GHS{contributor.amount}
+                      </td>
+                      <td className="border px-4 py-2">
+                        {contributor.currentDate}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
       </div>
