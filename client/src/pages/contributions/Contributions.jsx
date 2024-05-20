@@ -1,50 +1,49 @@
 import React, { useState, useEffect } from "react";
-import axios from 'axios';
-import DateUtils from "../../util/DateUtils"; // Import the DateUtils utility class
+import DateUtils from "../../util/DateUtils";
+import axios from "axios";
 
 const Contributions = () => {
   const currentMonth = DateUtils.getCurrentMonth();
   const currentYear = DateUtils.getCurrentYear();
   const [contributors, setContributors] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+  const [selectedMonth, setSelectedMonth] = useState("");
   const [filteredContributors, setFilteredContributors] = useState([]);
 
   useEffect(() => {
     const fetchContributions = async () => {
       try {
-        const response = await axios.get('https://gmsc18-contributor.onrender.com/fetchPayments/');
+        const response = await axios.get(
+          "https://gmsc18-contributor.onrender.com/fetchPayments/"
+        );
         const data = response.data.success;
-        console.log('Fetched data:', data); // Debugging line
+        console.log("Fetched data:", data); // Debugging line
         setContributors(data);
-        filterContributorsByMonth(currentMonth, currentYear, data);
+        filterContributorsByCurrentMonth(data);
       } catch (error) {
-        console.error('Error fetching contributions:', error);
+        console.error("Error fetching contributions:", error);
       }
     };
 
     fetchContributions();
   }, []);
 
+  const filterContributorsByCurrentMonth = (data) => {
+    const filtered = data.filter(
+      (contributor) =>
+        contributor.currentMonth.trim() === currentMonth &&
+        contributor.currentYear.trim() === currentYear.toString()
+    );
+
+    console.log("Filtered contributors for current month:", filtered); // Debugging line
+    setFilteredContributors(filtered);
+  };
+  
+
   const handleMonthChange = (event) => {
     const month = event.target.value;
     setSelectedMonth(month);
-    filterContributorsByMonth(month, currentYear);
+    filterContributorsByCurrentMonth(contributors); // Use all contributors data for filtering
   };
-
-  const filterContributorsByMonth = (month, year, data = contributors) => {
-    const filtered = data.reduce((acc, contributor) => {
-      if (
-        contributor.currentMonth.toLowerCase() === month.toLowerCase() &&
-        contributor.currentYear === year
-      ) {
-        return [...acc, contributor];
-      }
-      return acc;
-    }, []);
-    console.log('Filtered contributors for selected month:', filtered); // Debugging line
-    setFilteredContributors(filtered);
-  };
-   
 
   return (
     <div className="min-h-screen bg-gray-100">
@@ -103,8 +102,12 @@ const Contributions = () => {
                   filteredContributors.map((contributor, index) => (
                     <tr key={contributor._id}>
                       <td className="border px-4 py-2">{index + 1}</td>
-                      <td className="border px-4 py-2">{contributor.fullName}</td>
-                      <td className="border px-4 py-2">GHS{contributor.amount}</td>
+                      <td className="border px-4 py-2">
+                        {contributor.fullName}
+                      </td>
+                      <td className="border px-4 py-2">
+                        GHS{contributor.amount}
+                      </td>
                       <td className="border px-4 py-2">
                         {contributor.currentDate}
                       </td>
