@@ -21,6 +21,9 @@ const Contributions = () => {
         );
         const data = response.data.success;
 
+        console.log("current month: ", currentMonth);
+        console.log("current year: ", currentYear);
+
         setContributors(data);
         const totalCurrentMonth = calculateTotalAmountForMonth(
           data,
