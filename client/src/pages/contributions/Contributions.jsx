@@ -7,6 +7,7 @@ const Contributions = () => {
   const currentYear = DateUtils.getCurrentYear();
   const [contributors, setContributors] = useState([]);
   const [totalAmountCurrentMonth, setTotalAmountCurrentMonth] = useState(0);
+  const [totalAmountCurrentYear, setTotalAmountCurrentYear] = useState(0);
   const [totalAmountOverall, setTotalAmountOverall] = useState(0);
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [filteredContributors, setFilteredContributors] = useState([]);
@@ -18,11 +19,18 @@ const Contributions = () => {
         const response = await axios.get('https://gmsc18-contributor.onrender.com/fetchPayments/');
         const data = response.data.success;
 
+        // Set all contributors
         setContributors(data);
+
+        // Calculate and set totals
         const totalCurrentMonth = calculateTotalAmount(data, currentMonth, currentYear);
+        const totalCurrentYear = calculateTotalAmount(data, null, currentYear);
         const totalOverall = calculateTotalAmount(data);
         setTotalAmountCurrentMonth(totalCurrentMonth);
+        setTotalAmountCurrentYear(totalCurrentYear);
         setTotalAmountOverall(totalOverall);
+
+        // Filter contributors for the current month
         filterContributorsByMonth(currentMonth, currentYear, data);
       } catch (error) {
         console.error('Error fetching contributions:', error);
@@ -36,7 +44,9 @@ const Contributions = () => {
   const calculateTotalAmount = (contributors, month = null, year = null) => {
     return contributors
       .filter((contributor) =>
-        month && year ? (contributor.currentMonth === month && contributor.currentYear === year) : true
+        month && year ? (contributor.currentMonth === month && contributor.currentYear === year) :
+        year ? (contributor.currentYear === year) :
+        true
       )
       .reduce((total, contributor) => total + contributor.amount, 0);
   };
@@ -68,6 +78,9 @@ const Contributions = () => {
           <div className="mb-4 md:mb-0">
             <p className="text-lg font-semibold">
               Total amount gathered this month: GHS{totalAmountCurrentMonth}
+            </p>
+            <p className="text-lg font-semibold">
+              Total amount gathered this year: GHS{totalAmountCurrentYear}
             </p>
             <p className="text-lg font-semibold">
               Overall total amount gathered: GHS{totalAmountOverall}
@@ -121,16 +134,24 @@ const Contributions = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredContributors.map((contributor, index) => (
-                  <tr key={contributor._id}>
-                    <td className="border px-4 py-2">{index + 1}</td>
-                    <td className="border px-4 py-2">{contributor.fullName}</td>
-                    <td className="border px-4 py-2">GHS{contributor.amount}</td>
-                    <td className="border px-4 py-2">
-                      {contributor.currentDate}
+                {filteredContributors.length > 0 ? (
+                  filteredContributors.map((contributor, index) => (
+                    <tr key={contributor._id}>
+                      <td className="border px-4 py-2">{index + 1}</td>
+                      <td className="border px-4 py-2">{contributor.fullName}</td>
+                      <td className="border px-4 py-2">GHS{contributor.amount}</td>
+                      <td className="border px-4 py-2">
+                        {contributor.currentDate}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan="4" className="border px-4 py-2 text-center">
+                      No contributions for this month.
                     </td>
                   </tr>
-                ))}
+                )}
               </tbody>
             </table>
           </div>
