@@ -8,6 +8,7 @@ const Contributions = () => {
   const [contributors, setContributors] = useState([]);
   const [totalAmountCurrentMonth, setTotalAmountCurrentMonth] = useState(0);
   const [totalAmountOverall, setTotalAmountOverall] = useState(0);
+  const [totalAmountYear, setTotalAmountYear] = useState(0); // New state for total amount in a year
   const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [filteredContributors, setFilteredContributors] = useState([]);
 
@@ -19,10 +20,12 @@ const Contributions = () => {
         const data = response.data.success;
 
         setContributors(data);
-        const totalCurrentMonth = calculateTotalAmount(data, currentMonth, currentYear);
-        const totalOverall = calculateTotalAmount(data);
+        const totalCurrentMonth = calculateTotalAmountForMonth(data, currentMonth, currentYear);
+        const totalOverall = calculateTotalOverall(data);
+        const totalYear = calculateTotalAmountForYear(data, currentYear);
         setTotalAmountCurrentMonth(totalCurrentMonth);
         setTotalAmountOverall(totalOverall);
+        setTotalAmountYear(totalYear); // Set the total amount for the year
         filterContributorsByMonth(currentMonth, currentYear, data);
       } catch (error) {
         console.error('Error fetching contributions:', error);
@@ -32,13 +35,23 @@ const Contributions = () => {
     fetchContributions();
   }, [currentMonth, currentYear]);
 
-  // Calculate total amount for the given month and year or overall
-  const calculateTotalAmount = (contributors, month = null, year = null) => {
+  // Calculate total amount for the given month and year
+  const calculateTotalAmountForMonth = (contributors, month, year) => {
     return contributors
-      .filter((contributor) =>
-        month && year ? (contributor.currentMonth === month && contributor.currentYear === year) : true
-      )
+      .filter((contributor) => contributor.currentMonth === month && contributor.currentYear === year)
       .reduce((total, contributor) => total + contributor.amount, 0);
+  };
+
+  // Calculate total amount for the year
+  const calculateTotalAmountForYear = (contributors, year) => {
+    return contributors
+      .filter((contributor) => contributor.currentYear === year)
+      .reduce((total, contributor) => total + contributor.amount, 0);
+  };
+
+  // Calculate overall total amount
+  const calculateTotalOverall = (contributors) => {
+    return contributors.reduce((total, contributor) => total + contributor.amount, 0);
   };
 
   // Handle month change
@@ -71,6 +84,9 @@ const Contributions = () => {
             </p>
             <p className="text-lg font-semibold">
               Overall total amount gathered: GHS{totalAmountOverall}
+            </p>
+            <p className="text-lg font-semibold">
+              Total amount gathered this year: GHS{totalAmountYear}
             </p>
           </div>
           <div className="md:text-right">
