@@ -13,16 +13,13 @@ const Contributions = () => {
   const [filteredContributors, setFilteredContributors] = useState([]);
 
   useEffect(() => {
-    // Fetch contributions from the server
     const fetchContributions = async () => {
       try {
         const response = await axios.get('https://gmsc18-contributor.onrender.com/fetchPayments/');
         const data = response.data.success;
 
-        // Set all contributors
         setContributors(data);
 
-        // Calculate and set totals
         const totalCurrentMonth = calculateTotalAmount(data, currentMonth, currentYear);
         const totalCurrentYear = calculateTotalAmount(data, null, currentYear);
         const totalOverall = calculateTotalAmount(data);
@@ -30,7 +27,6 @@ const Contributions = () => {
         setTotalAmountCurrentYear(totalCurrentYear);
         setTotalAmountOverall(totalOverall);
 
-        // Filter contributors for the current month
         filterContributorsByMonth(currentMonth, currentYear, data);
       } catch (error) {
         console.error('Error fetching contributions:', error);
@@ -38,27 +34,28 @@ const Contributions = () => {
     };
 
     fetchContributions();
-  }, [currentMonth, currentYear]);
+  }, []);
 
-  // Calculate total amount for the given month and year or overall
   const calculateTotalAmount = (contributors, month = null, year = null) => {
     return contributors
-      .filter((contributor) =>
-        month && year ? (contributor.currentMonth === month && contributor.currentYear === year) :
-        year ? (contributor.currentYear === year) :
-        true
-      )
+      .filter(contributor => {
+        if (month && year) {
+          return contributor.currentMonth === month && contributor.currentYear === year;
+        } else if (year) {
+          return contributor.currentYear === year;
+        } else {
+          return true;
+        }
+      })
       .reduce((total, contributor) => total + contributor.amount, 0);
   };
 
-  // Handle month change
   const handleMonthChange = (event) => {
     const month = event.target.value;
     setSelectedMonth(month);
     filterContributorsByMonth(month, currentYear);
   };
 
-  // Filter contributors by selected month and year
   const filterContributorsByMonth = (month, year, data = contributors) => {
     const filtered = data.filter(
       (contributor) => contributor.currentMonth === month && contributor.currentYear === year
@@ -73,7 +70,6 @@ const Contributions = () => {
           Contributions
         </h1>
 
-        {/* Total amount gathered */}
         <div className="mb-4 md:flex md:items-center md:justify-between">
           <div className="mb-4 md:mb-0">
             <p className="text-lg font-semibold">
@@ -87,7 +83,6 @@ const Contributions = () => {
             </p>
           </div>
           <div className="md:text-right">
-            {/* Month selector */}
             <label
               htmlFor="monthSelector"
               className="text-lg font-semibold mr-2"
@@ -100,7 +95,6 @@ const Contributions = () => {
               value={selectedMonth}
               onChange={handleMonthChange}
             >
-              {/* Dropdown options for selecting month */}
               <option value="">Select Month</option>
               <option value="January">January</option>
               <option value="February">February</option>
@@ -118,7 +112,6 @@ const Contributions = () => {
           </div>
         </div>
 
-        {/* Contributors table */}
         <div className="bg-white p-6 rounded shadow-md">
           <h2 className="text-2xl font-bold mb-4">
             Contributors for the month of {selectedMonth || "All"}
