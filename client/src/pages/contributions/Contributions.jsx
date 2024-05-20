@@ -1,48 +1,59 @@
 import React, { useState, useEffect } from "react";
-import DateUtils from "../../util/DateUtils";
-import axios from "axios";
+import axios from 'axios';
+import DateUtils from "../../util/DateUtils"; // Import the DateUtils utility class
 
 const Contributions = () => {
   const currentMonth = DateUtils.getCurrentMonth();
   const currentYear = DateUtils.getCurrentYear();
   const [contributors, setContributors] = useState([]);
-  const [selectedMonth, setSelectedMonth] = useState("");
+  const [totalAmountCurrentMonth, setTotalAmountCurrentMonth] = useState(0);
+  const [totalAmountOverall, setTotalAmountOverall] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState(currentMonth);
   const [filteredContributors, setFilteredContributors] = useState([]);
 
   useEffect(() => {
+    // Fetch contributions from the server
     const fetchContributions = async () => {
       try {
-        const response = await axios.get(
-          "https://gmsc18-contributor.onrender.com/fetchPayments/"
-        );
+        const response = await axios.get('https://gmsc18-contributor.onrender.com/fetchPayments/');
         const data = response.data.success;
-        console.log("Fetched data:", data); // Debugging line
+
         setContributors(data);
-        filterContributorsByCurrentMonth(data);
+        const totalCurrentMonth = calculateTotalAmount(data, currentMonth, currentYear);
+        const totalOverall = calculateTotalAmount(data);
+        setTotalAmountCurrentMonth(totalCurrentMonth);
+        setTotalAmountOverall(totalOverall);
+        filterContributorsByMonth(currentMonth, currentYear, data);
       } catch (error) {
-        console.error("Error fetching contributions:", error);
+        console.error('Error fetching contributions:', error);
       }
     };
 
     fetchContributions();
-  }, []);
+  }, [currentMonth, currentYear]);
 
-  const filterContributorsByCurrentMonth = (data) => {
-    const filtered = data.filter(
-      (contributor) =>
-        contributor.currentMonth.trim() === currentMonth &&
-        contributor.currentYear.trim() === currentYear.toString()
-    );
-
-    console.log("Filtered contributors for current month:", filtered); // Debugging line
-    setFilteredContributors(filtered);
+  // Calculate total amount for the given month and year or overall
+  const calculateTotalAmount = (contributors, month = null, year = null) => {
+    return contributors
+      .filter((contributor) =>
+        month && year ? (contributor.currentMonth === month && contributor.currentYear === year) : true
+      )
+      .reduce((total, contributor) => total + contributor.amount, 0);
   };
-  
 
+  // Handle month change
   const handleMonthChange = (event) => {
     const month = event.target.value;
     setSelectedMonth(month);
-    filterContributorsByCurrentMonth(contributors); // Use all contributors data for filtering
+    filterContributorsByMonth(month, currentYear);
+  };
+
+  // Filter contributors by selected month and year
+  const filterContributorsByMonth = (month, year, data = contributors) => {
+    const filtered = data.filter(
+      (contributor) => contributor.currentMonth === month && contributor.currentYear === year
+    );
+    setFilteredContributors(filtered);
   };
 
   return (
@@ -52,8 +63,18 @@ const Contributions = () => {
           Contributions
         </h1>
 
+        {/* Total amount gathered */}
         <div className="mb-4 md:flex md:items-center md:justify-between">
+          <div className="mb-4 md:mb-0">
+            <p className="text-lg font-semibold">
+              Total amount gathered this month: GHS{totalAmountCurrentMonth}
+            </p>
+            <p className="text-lg font-semibold">
+              Overall total amount gathered: GHS{totalAmountOverall}
+            </p>
+          </div>
           <div className="md:text-right">
+            {/* Month selector */}
             <label
               htmlFor="monthSelector"
               className="text-lg font-semibold mr-2"
@@ -66,6 +87,7 @@ const Contributions = () => {
               value={selectedMonth}
               onChange={handleMonthChange}
             >
+              {/* Dropdown options for selecting month */}
               <option value="">Select Month</option>
               <option value="January">January</option>
               <option value="February">February</option>
@@ -83,6 +105,7 @@ const Contributions = () => {
           </div>
         </div>
 
+        {/* Contributors table */}
         <div className="bg-white p-6 rounded shadow-md">
           <h2 className="text-2xl font-bold mb-4">
             Contributors for the month of {selectedMonth || "All"}
@@ -98,28 +121,16 @@ const Contributions = () => {
                 </tr>
               </thead>
               <tbody>
-                {filteredContributors.length > 0 ? (
-                  filteredContributors.map((contributor, index) => (
-                    <tr key={contributor._id}>
-                      <td className="border px-4 py-2">{index + 1}</td>
-                      <td className="border px-4 py-2">
-                        {contributor.fullName}
-                      </td>
-                      <td className="border px-4 py-2">
-                        GHS{contributor.amount}
-                      </td>
-                      <td className="border px-4 py-2">
-                        {contributor.currentDate}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="4" className="border px-4 py-2 text-center">
-                      No contributions for this month.
+                {filteredContributors.map((contributor, index) => (
+                  <tr key={contributor._id}>
+                    <td className="border px-4 py-2">{index + 1}</td>
+                    <td className="border px-4 py-2">{contributor.fullName}</td>
+                    <td className="border px-4 py-2">GHS{contributor.amount}</td>
+                    <td className="border px-4 py-2">
+                      {contributor.currentDate}
                     </td>
                   </tr>
-                )}
+                ))}
               </tbody>
             </table>
           </div>
