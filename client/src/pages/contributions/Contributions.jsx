@@ -18,6 +18,7 @@ const Contributions = () => {
       try {
         const response = await axios.get('https://gmsc18-contributor.onrender.com/fetchPayments/');
         const data = response.data.success;
+        console.log(data);
 
         setContributors(data);
         calculateTotalAmountOverall(data);
