@@ -47,6 +47,7 @@ const Contributions = () => {
     const filteredData = data.filter(
       (item) => item.currentMonth === month && item.currentYear === year
     );
+    console.log("filtered months: ", filteredData);
 
     // Calculate the total amount
     const totalAmount = filteredData.reduce(
@@ -61,6 +62,7 @@ const Contributions = () => {
   function calculateTotalAmountForYear(data, year) {
     // Filter the data based on year
     const filteredData = data.filter((item) => item.currentYear === year);
+    console.log("filtered years: ", filteredData);
 
     // Calculate the total amount
     const totalAmount = filteredData.reduce(
